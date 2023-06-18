@@ -1,0 +1,14 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:XD.XFinder.UI"
+             xmlns:ui="clr-namespace:XD.XFinder.UI"
+             x:Class="XD.XFinder.UI.App">
+
+    <Application.DataTemplates>
+        <ui:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme Mode="Light"/>
+    </Application.Styles>
+</Application>
