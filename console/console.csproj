@@ -10,7 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\code-analyzer\code-analyzer.csproj" />
-      <ProjectReference Include="..\file-manager\file-manager.csproj" />
+      <ProjectReference Include="..\finder-core\finder-core.csproj" />
     </ItemGroup>
 
 </Project>

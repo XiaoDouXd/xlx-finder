@@ -1,4 +1,4 @@
-﻿namespace FileManager.FileCollection;
+﻿namespace FinderCore.File.FileCollection;
 
 #region ReSharper disable
 
@@ -7,15 +7,15 @@
 
 #endregion
 
-public static class FileCollectionUtils
+internal static class FileCollectionUtils
 {
-    public const char DirSeparatorChar = '/';
-    public const char AltDirSeparatorChar = '\\';
-    public const char VolumeSeparatorChar = ':';
-    public const char DirLienChar = '.';
+    internal const char DirSeparatorChar = '/';
+    internal const char AltDirSeparatorChar = '\\';
+    internal const char VolumeSeparatorChar = ':';
+    internal const char DirLienChar = '.';
 
-    public const string SeedUuid = "873AC3C2-BFCB-4DE0-A463-B023440ABC06";
-    public const int HashFileBlockSize = 2048 * 1024;  /*2 MiB*/
+    internal const string SeedUuid = "873AC3C2-BFCB-4DE0-A463-B023440ABC06";
+    internal const int HashFileBlockSize = 2048 * 1024;  /*2 MiB*/
 
     private static readonly ulong Seed =
         WyHash.WyHash64.ComputeHash64(new Guid(SeedUuid).ToByteArray());
@@ -25,9 +25,9 @@ public static class FileCollectionUtils
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    public static ulong[] Hash(in string path)
+    internal static ulong[] Hash(in string path)
     {
-        using var f = File.Open(path, FileMode.Open);
+        using var f = System.IO.File.Open(path, FileMode.Open);
         var block = new byte[HashFileBlockSize];
         var offset = 0L;
         var leftSize = f.Length;
@@ -61,7 +61,7 @@ public static class FileCollectionUtils
     /// <param name="path"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static string Path(in IEnumerable<string> path)
+    internal static string Path(in IEnumerable<string> path)
     {
         var len = PathLenght(path);
         if (len <= 0) return string.Empty;
@@ -86,7 +86,7 @@ public static class FileCollectionUtils
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    public static string[] Path(in ReadOnlySpan<char> path)
+    internal static string[] Path(in ReadOnlySpan<char> path)
     {
         if (path.Length == 0) return Array.Empty<string>();
 
@@ -124,6 +124,7 @@ public static class FileCollectionUtils
             part[idx++] = i;
             isFrom = false;
         }
+
         // ReSharper disable ConvertIfStatementToSwitchStatement
         if (idx == 0) return Array.Empty<string>();
         if (idx % 2 != 0) part[idx++] = path.Length - 1;
@@ -161,7 +162,7 @@ public static class FileCollectionUtils
     /// <param name="path"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static int PathLenght(in IEnumerable<string> path)
+    internal static int PathLenght(in IEnumerable<string> path)
     {
         var len = 0;
         var sepCount = 0;

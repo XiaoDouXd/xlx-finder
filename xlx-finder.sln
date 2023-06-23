@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "code-analyzer", "code-analy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "console", "console\console.csproj", "{B6FC2DA2-C12F-4BB9-9036-16C66268A979}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "file-manager", "file-manager\file-manager.csproj", "{28B5B9AF-B8F2-4832-86D6-B62F8B6082EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finder-core", "finder-core\finder-core.csproj", "{28B5B9AF-B8F2-4832-86D6-B62F8B6082EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

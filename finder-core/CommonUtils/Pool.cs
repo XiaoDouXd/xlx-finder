@@ -1,6 +1,14 @@
 ﻿using System.Collections.Concurrent;
 
-namespace FileManager.CommonUtils;
+#region ReSharper disable
+
+// ReSharper disable UnusedParameter.Global
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
+
+#endregion
+
+namespace FinderCore.CommonUtils;
 
 public interface IPoolHandle<T> where T : class, new()
 {
@@ -22,6 +30,8 @@ public static class Pool<T> where T : class, new()
     public static T DePool() => P.TryPop(out var v) ? v : new T();
 
     public static void InPool(T obj) { if (P.Count < MaxSize) P.Push(obj); }
+
+    public static void Clear() => P.Clear();
 }
 
 public static class Pool<T, THandle> where T : class, new() where THandle : IPoolHandle<T>, new()
@@ -31,9 +41,12 @@ public static class Pool<T, THandle> where T : class, new() where THandle : IPoo
     private static readonly THandle F = new();
 
     public static T DePool() => P.TryPop(out var v) ? F.Set(v) : F.Set(new T());
+
     public static void InPool(T obj)
     {
         F.Reset(obj);
         if (P.Count < MaxSize) P.Push(obj);
     }
+
+    public static void Clear() => P.Clear();
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using FileManager.CommonUtils;
+using FinderCore.CommonUtils;
 
-namespace FileManager.FileCollection;
+namespace FinderCore.File.FileCollection;
 
 #region ReSharper disable
 
@@ -11,25 +11,25 @@ namespace FileManager.FileCollection;
 
 #endregion
 
-public partial class FileCollection
+internal partial class FileCollection
 {
-    public interface IFileInfo
+    internal interface IFileInfo
     {
-        public Guid Uuid { get; }
-        public IReadOnlyList<ulong> Hash { get; }
-        public string FullPath { get; }
-        public IEnumerable<string> Path { get; }
+        internal Guid Uuid { get; }
+        internal IReadOnlyList<ulong> Hash { get; }
+        internal string FullPath { get; }
+        internal IEnumerable<string> Path { get; }
     }
 
     private class Node : IEnumerable<string>
     {
-        public enum EType : byte
+        internal enum EType : byte
         {
             File,
             Directory
         }
 
-        public class FileInfo : IFileInfo
+        internal class FileInfo : IFileInfo
         {
             public Guid Uuid { get; }
             public Node? Affiliation { get; set; }
@@ -37,7 +37,7 @@ public partial class FileCollection
             public ulong[] HashCode { get; }
             public string FullPath => Watcher.Path;
             public IEnumerable<string> Path => Affiliation ?? Enumerable.Empty<string>();
-            public readonly FileSystemWatcher Watcher;
+            internal readonly FileSystemWatcher Watcher;
 
             private void OnFileChanged(object sender, FileSystemEventArgs e)
                 => Affiliation?.OnFileChanged(this, EChangeType.Modify, e);
@@ -46,7 +46,7 @@ public partial class FileCollection
             private void OnFileRenamed(object sender, FileSystemEventArgs e)
                 => Affiliation?.OnFileChanged(this, EChangeType.Rename, e);
 
-            public FileInfo(in Guid uuid, in Node affiliation, string path)
+            internal FileInfo(in Guid uuid, in Node affiliation, string path)
             {
                 Uuid = uuid;
                 Affiliation = affiliation;
@@ -57,7 +57,7 @@ public partial class FileCollection
                 HashCode = FileCollectionUtils.Hash(path);
             }
 
-            public FileInfo(in Guid uuid, in Node affiliation, ulong[] hash, string path)
+            internal FileInfo(in Guid uuid, in Node affiliation, ulong[] hash, string path)
             {
                 Uuid = uuid;
                 Affiliation = affiliation;
@@ -71,16 +71,16 @@ public partial class FileCollection
 
         #region Props
 
-        public readonly SortedDictionary<string, Node> Children = new();
-        public Node? Parent { get; private set; }
+        internal readonly SortedDictionary<string, Node> Children = new();
+        internal Node? Parent { get; private set; }
 
-        public EType Type { get; private set; }
-        public string? Name { get; private set; }
-        public FileInfo? FInfo { get; private set; }
+        internal EType Type { get; private set; }
+        internal string? Name { get; private set; }
+        internal FileInfo? FInfo { get; private set; }
 
         #endregion
 
-        public void Set(FileCollection affiliation, EType type, string name, Node? parent = null)
+        internal void Set(FileCollection affiliation, EType type, string name, Node? parent = null)
         {
             Type = type;
             Name = name;
@@ -88,9 +88,9 @@ public partial class FileCollection
             _affiliation = affiliation;
         }
 
-        public void Reset() => Reset(false);
+        internal void Reset() => Reset(false);
 
-        public void SetInfo(Guid uuid, IEnumerable<string>? path = null)
+        internal void SetInfo(Guid uuid, IEnumerable<string>? path = null)
         {
             if (Type != EType.File)
                 throw new ArgumentException("node is not a file");
@@ -101,31 +101,31 @@ public partial class FileCollection
             FInfo = new FileInfo(uuid, this, realPath);
         }
 
-        public void SetInfo(Guid uuid, IEnumerable<string> path, ulong[] hash)
+        internal void SetInfo(Guid uuid, IEnumerable<string> path, ulong[] hash)
         {
             FInfo = new FileInfo(uuid, this, hash, FileCollectionUtils.Path(path));
         }
 
-        public void SetInfo(FileInfo info)
+        internal void SetInfo(FileInfo info)
         {
             FInfo = info;
             FInfo.Affiliation = this;
         }
 
-        public Node? GetChild(string str)
+        internal Node? GetChild(string str)
         {
             if (string.IsNullOrEmpty(str)) throw new ArgumentNullException(nameof(str));
             return Children.TryGetValue(str, out var node) ? node : null;
         }
 
-        public void Add(Node node)
+        internal void Add(Node node)
         {
             if (Type == EType.File) throw new ArgumentException("try to add child node to a file");
             if (string.IsNullOrEmpty(node.Name)) throw new ArgumentException("invalid node");
             Children.Add(node.Name, node);
         }
 
-        public string Path(IEnumerable<string>? path = null)
+        internal string Path(IEnumerable<string>? path = null)
         {
             return FileCollectionUtils.Path(path ?? this);
         }

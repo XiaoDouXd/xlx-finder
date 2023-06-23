@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using FileManager.CommonUtils;
+using FinderCore.CommonUtils;
 
 #region ReSharper disable
 
@@ -11,36 +11,39 @@ using FileManager.CommonUtils;
 
 #endregion
 
-namespace FileManager.FileCollection;
+namespace FinderCore.File.FileCollection;
 
-public struct FileInfo
+internal struct FileInfo
 {
-    public Guid Uuid;
-    public string Path;
-    public ulong[] Hash;
+    // ReSharper disable FieldCanBeMadeReadOnly.Global
+    public Guid Uuid = Guid.Empty;
+    public string Path = string.Empty;
+    public ulong[] Hash = Array.Empty<ulong>();
+    // ReSharper restore FieldCanBeMadeReadOnly.Global
+    public FileInfo() {}
 }
 
-public partial class FileCollection : IReadOnlyCollection<FileCollection.IFileInfo>
+internal partial class FileCollection : IReadOnlyCollection<FileCollection.IFileInfo>
 {
-    public enum EChangeType
+    internal enum EChangeType
     {
         Add,
         Modify,
         Delete,
         Rename,
     }
-    public delegate void OnFileChange(Guid uuid, EChangeType changeType);
-    public event OnFileChange? ChangeEvent;
+    internal delegate void OnFileChange(Guid uuid, EChangeType changeType);
+    internal event OnFileChange? ChangeEvent;
 
-    public IFileInfo? this[Guid idx] => _fileDict.TryGetValue(idx, out var node) ? node.FInfo : null;
-    public IFileInfo? this[IEnumerable<string> path] => Find(path)?.FInfo;
-    public IFileInfo? this[string path] => this[FileCollectionUtils.Path(path)];
+    internal IFileInfo? this[Guid idx] => _fileDict.TryGetValue(idx, out var node) ? node.FInfo : null;
+    internal IFileInfo? this[IEnumerable<string> path] => Find(path)?.FInfo;
+    internal IFileInfo? this[string path] => this[FileCollectionUtils.Path(path)];
 
-    public Guid AddSerializeInfo(in FileInfo info, bool sendFileChangeMessage = true)
+    internal Guid AddSerializeInfo(in FileInfo info, bool sendFileChangeMessage = true)
     {
         if (_fileDict.ContainsKey(info.Uuid)) throw new ArgumentException("info key had exist");
 
-        if (!File.Exists(info.Path)) return Guid.Empty;
+        if (!System.IO.File.Exists(info.Path)) return Guid.Empty;
         var filePath = FileCollectionUtils.Path(info.Path);
         if (filePath.Length <= 1) throw new ArgumentException($"invalid file path: {info.Path}");
         if (Find(filePath) != null) throw new ArgumentException("file had exist in fileCollection");
@@ -53,9 +56,9 @@ public partial class FileCollection : IReadOnlyCollection<FileCollection.IFileIn
         return info.Uuid;
     }
 
-    public Guid Add(string path, bool sendFileChangeMessage = true)
+    internal Guid Add(string path, bool sendFileChangeMessage = true)
     {
-        if (!File.Exists(path)) throw new ArgumentException("file not found");
+        if (!System.IO.File.Exists(path)) throw new ArgumentException("file not found");
         var filePath = FileCollectionUtils.Path(path);
         if (filePath.Length <= 1) throw new ArgumentException($"invalid file path: {path}");
         if (Find(filePath) != null) throw new ArgumentException("file had exist in fileCollection");
@@ -76,19 +79,19 @@ public partial class FileCollection : IReadOnlyCollection<FileCollection.IFileIn
     }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void Clear()
+    internal void Clear()
     {
         _fileDict.Clear();
         foreach (var (_, node) in _roots) node.Reset();
         _roots.Clear();
     }
 
-    public bool Contains(Guid id)
+    internal bool Contains(Guid id)
     {
         return _fileDict.ContainsKey(id);
     }
 
-    public bool Remove(Guid id)
+    internal bool Remove(Guid id)
     {
         if (!_fileDict.TryGetValue(id, out var node))
             return false;
