@@ -1,5 +1,4 @@
-﻿using FinderCore.CommonUtils;
-using FinderCore.CommonUtils.Math;
+﻿using FinderCore.CommonUtils.Math;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
@@ -10,21 +9,19 @@ using Directory = System.IO.Directory;
 
 namespace FinderCore.Find.IndexCollection;
 
-public static class IndexCreateUtils
+internal partial class IndexCollection
 {
     public class CreateProcessController
     {
         public bool IsCancel;
     }
 
-    private static readonly ThreadLocal<Analyzer> Analyzer = new(
-        () => new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
-
-    public static void CreateOrUpdate(string path, ExcelPackage package, CreateProcessController controller)
+    private async void CreateOrUpdate(Guid id, string path, ExcelPackage package, CreateProcessController controller)
     {
+        while (_info.TryGetValue(id, out var info) && !info.IsLocked) await Task.Delay(1000);
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         var dir = FSDirectory.Open(path);
-        using var writer = new IndexWriter(dir, Analyzer.Value, IndexWriter.MaxFieldLength.LIMITED);
+        using var writer = new IndexWriter(dir, _analyzer.Value, IndexWriter.MaxFieldLength.LIMITED);
         foreach (var sheet in package.Workbook.Worksheets)
         {
             if (sheet == null) continue;
@@ -54,7 +51,7 @@ public static class IndexCreateUtils
                     doc.Add(number);
 
                     if (controller.IsCancel) goto Cancel;
-                    lock (WriterLockObj) writer.AddDocument(doc);
+                    lock (_writerLockObj) writer.AddDocument(doc);
                     if (controller.IsCancel) goto Cancel;
                 }
             }
@@ -65,5 +62,7 @@ public static class IndexCreateUtils
         if (Directory.Exists(path)) Directory.Delete(path);
     }
 
-    private static readonly object WriterLockObj = new();
+    private readonly object _writerLockObj = new();
+    private readonly ThreadLocal<Analyzer> _analyzer = new(
+        () => new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 }

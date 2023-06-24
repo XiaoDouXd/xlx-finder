@@ -10,7 +10,7 @@ internal partial class IndexCollection
     {
         public Guid Uuid;
         public bool IsDispatched;
-        public IndexCreateUtils.CreateProcessController? Controller;
+        public CreateProcessController? Controller;
     }
 
     private class IndexInfo
@@ -22,43 +22,6 @@ internal partial class IndexCollection
 
     public bool IsIndexCreating(in Guid id)
         => _createIndexTasks.ContainsKey(id);
-
-    public void LockIndex(in Guid id)
-    {
-        lock (_info)
-            if (_info.TryGetValue(id, out var info)) info.IsLocked = true;
-        UpdateInfoCache();
-    }
-
-    public void UnlockIndex(in Guid id)
-    {
-        lock (_info)
-            if (_info.TryGetValue(id, out var info)) info.IsLocked = false;
-        UpdateInfoCache();
-    }
-
-    private void CreateIndexStart(Guid uuid)
-    {
-        var task = CreateIndexFromFile(uuid);
-        task.ContinueWith(t =>
-        {
-            if (t.Result.IsDispatched) return;
-            if (!t.IsCompleted)
-            {
-                var path = GetIndexPath(uuid);
-                if (Directory.Exists(path)) Directory.Delete(path);
-            }
-            _createIndexTasks.TryRemove(t.Result.Uuid, out _);
-
-            lock (_info)
-            {
-                if (!_info.ContainsKey(t.Result.Uuid))
-                    _info[t.Result.Uuid] = new IndexInfo();
-            }
-            CreateIndexFinishEvent?.Invoke(t.Result.Uuid);
-        });
-        task.Start();
-    }
 
     private Task<UpdateTaskInfo> CreateIndexFromFile(Guid fileId)
     {
@@ -79,7 +42,7 @@ internal partial class IndexCollection
             }
         }
 
-        var ctrl = new IndexCreateUtils.CreateProcessController{ IsCancel = false };
+        var ctrl = new CreateProcessController{ IsCancel = false };
         var taskInfo = new UpdateTaskInfo
         {
             Uuid = fileId,
@@ -89,7 +52,7 @@ internal partial class IndexCollection
         var task = new Task<UpdateTaskInfo>(() =>
         {
             var excelInfo = FileMan.I.ReadExcel(fileId);
-            IndexCreateUtils.CreateOrUpdate(GetIndexPath(fileId), excelInfo, ctrl);
+            CreateOrUpdate(fileId, GetIndexPath(fileId), excelInfo, ctrl);
             return taskInfo;
         });
         _createIndexTasks.TryAdd(fileId, taskInfo);
@@ -109,8 +72,7 @@ internal partial class IndexCollection
         }
     }
 
-    private static string GetIndexPath(in Guid uuid)
-        => Const.IndexPath + uuid;
+    private static string GetIndexPath(in Guid uuid) => Const.IndexPath + uuid;
     private readonly ConcurrentDictionary<Guid, IndexInfo> _info = new();
     private readonly ConcurrentDictionary<Guid, UpdateTaskInfo> _createIndexTasks = new();
 }
