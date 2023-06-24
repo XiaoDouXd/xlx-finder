@@ -1,9 +1,8 @@
-﻿
-namespace FinderCore.Find.IndexCollection;
+﻿namespace FinderCore.Find.IndexCollection;
 
 internal partial class IndexCollection
 {
-    public void Add(in Guid id)
+    public void AddOrUpdate(in Guid id)
     {
         lock (_info)
         {

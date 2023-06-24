@@ -18,7 +18,13 @@ internal partial class IndexCollection
 
     private async void CreateOrUpdate(Guid id, string path, ExcelPackage package, CreateProcessController controller)
     {
-        while (_info.TryGetValue(id, out var info) && !info.IsLocked) await Task.Delay(1000);
+        while (_info.TryGetValue(id, out var info) && !info.IsLocked)
+        {
+            await Task.Delay(1000);
+            if (controller.IsCancel) break;
+        }
+
+        if (controller.IsCancel) goto Cancel;
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         var dir = FSDirectory.Open(path);
         using var writer = new IndexWriter(dir, _analyzer.Value, IndexWriter.MaxFieldLength.LIMITED);
