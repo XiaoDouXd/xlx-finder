@@ -178,6 +178,21 @@ internal static class FileCollectionUtils
     }
 
     /// <summary>
+    /// 比较两个哈希数组是否相同
+    /// </summary>
+    /// <param name="hashA"></param>
+    /// <param name="hashB"></param>
+    /// <returns></returns>
+    internal static bool CompareHash(in IReadOnlyList<ulong> hashA, in IReadOnlyList<ulong> hashB)
+    {
+        if (hashA.Count != hashB.Count) return false;
+        // ReSharper disable once LoopCanBeConvertedToQuery
+        for (var i = 0; i < hashA.Count; i++)
+            if (hashA[i] != hashB[i]) return false;
+        return true;
+    }
+
+    /// <summary>
     /// 倒序写入目录名
     /// </summary>
     /// <param name="sp"></param>

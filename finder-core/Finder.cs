@@ -42,7 +42,7 @@ public class Finder : Singleton<Finder>
     public byte Process { get; private set; }
     public void Init()
     {
-
+        var changedFiles = FileMan.I.Init();
     }
 
     public Guid SubmitTask(in FindTask taskInfo)

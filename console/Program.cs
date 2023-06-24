@@ -13,6 +13,11 @@ try
     // Console.Write("{");
     // foreach (var str in sList) Console.Write($" |{str}|,");
     // Console.Write("}\n");
+    // var enumable = ;
+    // foreach (var e in enumable)
+    // {
+    //     Console.WriteLine(e);
+    // }
 }
 catch(Exception e)
 {

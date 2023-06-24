@@ -16,7 +16,7 @@ internal partial class FileCollection
     internal interface IFileInfo
     {
         internal Guid Uuid { get; }
-        internal IReadOnlyList<ulong> Hash { get; }
+        internal ulong[] Hash { get; }
         internal string FullPath { get; }
         internal IEnumerable<string> Path { get; }
     }
@@ -33,8 +33,7 @@ internal partial class FileCollection
         {
             public Guid Uuid { get; }
             public Node? Affiliation { get; set; }
-            public IReadOnlyList<ulong> Hash => HashCode;
-            public ulong[] HashCode { get; }
+            public ulong[] Hash { get; }
             public string FullPath => Watcher.Path;
             public IEnumerable<string> Path => Affiliation ?? Enumerable.Empty<string>();
             internal readonly FileSystemWatcher Watcher;
@@ -54,7 +53,7 @@ internal partial class FileCollection
                 Watcher.Changed += OnFileChanged;
                 Watcher.Deleted += OnFileDeleted;
                 Watcher.Renamed += OnFileRenamed;
-                HashCode = FileCollectionUtils.Hash(path);
+                Hash = FileCollectionUtils.Hash(path);
             }
 
             internal FileInfo(in Guid uuid, in Node affiliation, ulong[] hash, string path)
@@ -65,7 +64,7 @@ internal partial class FileCollection
                 Watcher.Changed += OnFileChanged;
                 Watcher.Deleted += OnFileDeleted;
                 Watcher.Renamed += OnFileRenamed;
-                HashCode = hash;
+                Hash = hash;
             }
         }
 
