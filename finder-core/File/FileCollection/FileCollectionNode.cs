@@ -95,7 +95,7 @@ internal partial class FileCollection
                 throw new ArgumentException("node is not a file");
 
             var realPath = Path(path);
-            if (!Directory.Exists(realPath))
+            if (!System.IO.File.Exists(realPath))
                 throw new FileNotFoundException("file not found", realPath);
             FInfo = new FileInfo(uuid, this, realPath);
         }

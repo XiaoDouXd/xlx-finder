@@ -4,12 +4,6 @@ internal partial class IndexCollection
 {
     public void AddOrUpdate(in Guid id)
     {
-        lock (_info)
-        {
-            if (_info.ContainsKey(id))
-                throw new ArgumentException("key already existed");
-        }
-
         var task = CreateIndexFromFile(id);
         task.ContinueWith(t =>
         {
@@ -25,6 +19,7 @@ internal partial class IndexCollection
             {
                 if (!_info.ContainsKey(t.Result.Uuid))
                     _info[t.Result.Uuid] = new IndexInfo();
+                else _info[t.Result.Uuid].IsLocked = false;
             }
             CreateIndexFinishEvent?.Invoke(t.Result.Uuid);
         });

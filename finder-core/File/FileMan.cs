@@ -22,7 +22,7 @@ internal class FileMan : Singleton<FileMan>
 
     public ConcurrentStack<Guid> Init()
     {
-        if (InitProcess == byte.MinValue)
+        if (InitProcess == FullInitProcess)
             throw new ApplicationException("reinit file manager");
 
         var changedFiles = new ConcurrentStack<Guid>();
@@ -36,8 +36,7 @@ internal class FileMan : Singleton<FileMan>
                 {
                     var info = cache.Infos[i];
                     var (id, isChanged) = _fileCollection.AddSerializeInfo(info, false);
-                    if (id != Guid.Empty && isChanged)
-                        changedFiles.Push(id);
+                    if (id != Guid.Empty && isChanged) changedFiles.Push(id);
                     InitProcess = (byte)((float)i / cache.Infos.Count * FullInitProcess);
                 }
             }
@@ -57,12 +56,23 @@ internal class FileMan : Singleton<FileMan>
         var task = Task.Run(() =>
         {
             var idList = new List<Guid>();
-            foreach (var f in files)
+            foreach (var path in files)
+            {
+                var f = Path.GetFullPath(path);
+                if (!System.IO.File.Exists(f)) continue;
+                if (Path.GetExtension(f) != ".xlsx") continue;
+                ExcelPackage? pkg;
+                try { pkg = new ExcelPackage(path); }
+                catch (Exception) { continue; }
+
+                Guid id;
                 lock (_lockObj)
                 {
-                    var id = _fileCollection.Add(f, false);
+                    id = _fileCollection.Add(f, false);
                     if (id != Guid.Empty) idList.Add(id);
                 }
+                _excelCache[id] = pkg;
+            }
             return idList;
         });
 
@@ -70,6 +80,7 @@ internal class FileMan : Singleton<FileMan>
         {
             if (ctx.IsCompleted)
                 ChangeEvent?.Invoke(Guid.Empty, FileCollection.FileCollection.EChangeType.Add, ctx.Result);
+            UpdateFileCache();
         });
     }
 

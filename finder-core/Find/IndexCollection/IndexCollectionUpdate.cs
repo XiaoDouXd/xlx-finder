@@ -40,6 +40,7 @@ internal partial class IndexCollection
                     oldTaskInfo.IsDispatched = true;
                 }
             }
+            _createIndexTasks.TryRemove(fileId, out _);
         }
 
         var ctrl = new CreateProcessController{ IsCancel = false };

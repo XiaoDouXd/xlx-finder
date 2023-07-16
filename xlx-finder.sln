@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "console", "console\console.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "finder-core", "finder-core\finder-core.csproj", "{28B5B9AF-B8F2-4832-86D6-B62F8B6082EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "file-collection", "file-collection\file-collection.csproj", "{FC183368-CBB6-4903-8825-BFB74C6AA29B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{28B5B9AF-B8F2-4832-86D6-B62F8B6082EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28B5B9AF-B8F2-4832-86D6-B62F8B6082EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28B5B9AF-B8F2-4832-86D6-B62F8B6082EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC183368-CBB6-4903-8825-BFB74C6AA29B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC183368-CBB6-4903-8825-BFB74C6AA29B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC183368-CBB6-4903-8825-BFB74C6AA29B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC183368-CBB6-4903-8825-BFB74C6AA29B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

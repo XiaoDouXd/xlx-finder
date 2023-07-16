@@ -1,4 +1,5 @@
-﻿using FinderCore.CommonUtils;
+﻿using System.Diagnostics.CodeAnalysis;
+using FinderCore.CommonUtils;
 using FinderCore.File;
 using FinderCore.Find;
 
@@ -6,6 +7,7 @@ namespace FinderCore;
 
 #region ReSharper disable
 
+// ReSharper disable MemberCanBeMadeStatic.Global
 // ReSharper disable ArrangeTrailingCommaInMultilineLists
 
 #endregion
@@ -39,10 +41,13 @@ public class Finder : Singleton<Finder>
     public event Action<Guid>? OnFindStart;
     public event Action<Guid>? OnFindUpdate;
 
-    public byte Process { get; private set; }
+    public byte Process => (byte)(FileMan.I.InitProcess / 2);
     public void Init()
     {
-        var changedFiles = FileMan.I.Init();
+        var changed = FileMan.I.Init();
+        FindMan.I.Init(changed);
+
+        FileMan.I.AddDir("../../workspace");
     }
 
     public Guid SubmitTask(in FindTask taskInfo)

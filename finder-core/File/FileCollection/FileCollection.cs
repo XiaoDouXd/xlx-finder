@@ -77,7 +77,7 @@ internal partial class FileCollection : IReadOnlyCollection<FileCollection.IFile
         var node = GetOrCreateDirNode(filePath);
         var fileNode = Get(Node.EType.File, filePath[0], node);
         node.Add(fileNode);
-        var uuid = new Guid();
+        var uuid = Guid.NewGuid();
         fileNode.SetInfo(uuid, filePath);
         _fileDict.Add(uuid, fileNode);
         if (sendFileChangeMessage) ChangeEvent?.Invoke(uuid, EChangeType.Add);

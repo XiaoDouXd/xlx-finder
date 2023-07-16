@@ -27,38 +27,42 @@ internal partial class IndexCollection
         if (controller.IsCancel) goto Cancel;
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         var dir = FSDirectory.Open(path);
-        using var writer = new IndexWriter(dir, _analyzer.Value, IndexWriter.MaxFieldLength.LIMITED);
-        foreach (var sheet in package.Workbook.Worksheets)
+
+        // ReSharper disable once ConvertToUsingDeclaration
+        using (var writer = new IndexWriter(dir, _analyzer.Value, IndexWriter.MaxFieldLength.LIMITED))
         {
-            if (sheet == null) continue;
-            var rowCount = sheet.Dimension.End.Row;
-            var colCount = sheet.Dimension.End.Column;
-
-            for (var i = 1; i <= rowCount; i++)
+            foreach (var sheet in package.Workbook.Worksheets)
             {
-                for (var j = 1; j <= colCount; j++)
+                if (sheet == null) continue;
+                var rowCount = sheet.Dimension.End.Row;
+                var colCount = sheet.Dimension.End.Column;
+
+                for (var i = 1; i <= rowCount; i++)
                 {
-                    var obj = sheet.Cells[i, j].Text;
-                    if (string.IsNullOrEmpty(obj)) continue;
-                    if (controller.IsCancel) goto Cancel;
-                    var doc = new Document();
+                    for (var j = 1; j <= colCount; j++)
+                    {
+                        var obj = sheet.Cells[i, j].Text;
+                        if (string.IsNullOrEmpty(obj)) continue;
+                        if (controller.IsCancel) goto Cancel;
+                        var doc = new Document();
 
-                    if (controller.IsCancel) goto Cancel;
-                    doc.Add(new Field("content",
-                        true,
-                        obj,
-                        Field.Store.NO,
-                        Field.Index.ANALYZED,
-                        Field.TermVector.WITH_POSITIONS_OFFSETS));
+                        if (controller.IsCancel) goto Cancel;
+                        doc.Add(new Field("content",
+                            true,
+                            obj,
+                            Field.Store.NO,
+                            Field.Index.ANALYZED,
+                            Field.TermVector.WITH_POSITIONS_OFFSETS));
 
-                    if (controller.IsCancel) goto Cancel;
-                    var number = new NumericField("pos", Field.Store.NO, false);
-                    number.SetLongValue((long)new Vec2I(i, j));
-                    doc.Add(number);
+                        if (controller.IsCancel) goto Cancel;
+                        var number = new NumericField("pos", Field.Store.NO, false);
+                        number.SetLongValue((long)new Vec2I(i, j));
+                        doc.Add(number);
 
-                    if (controller.IsCancel) goto Cancel;
-                    lock (_writerLockObj) writer.AddDocument(doc);
-                    if (controller.IsCancel) goto Cancel;
+                        if (controller.IsCancel) goto Cancel;
+                        lock (_writerLockObj) writer.AddDocument(doc);
+                        if (controller.IsCancel) goto Cancel;
+                    }
                 }
             }
         }

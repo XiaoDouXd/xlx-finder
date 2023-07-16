@@ -1,23 +1,15 @@
 ﻿// 测试用的控制台项目
 
 using FinderCore;
-using FinderCore.File.FileCollection;
-using XD.XFinder.Lang;
 
 try
 {
-    // var s =  File.Path(new string[] { "F", "aaa", "bbb" });
-    // Console.WriteLine($"|{s}|");
-    //
-    // var sList = FileCollectionUtils.Path("F://.//EF//.//AAAAAEEC /VR/./RRTV./.");
-    // Console.Write("{");
-    // foreach (var str in sList) Console.Write($" |{str}|,");
-    // Console.Write("}\n");
-    // var enumable = ;
-    // foreach (var e in enumable)
-    // {
-    //     Console.WriteLine(e);
-    // }
+    long i = 0;
+    Finder.I.Init();
+    while (true)
+    {
+        i++;
+    }
 }
 catch(Exception e)
 {

@@ -15,11 +15,12 @@ internal class FindMan : Singleton<FindMan>
     private readonly ConcurrentDictionary<Guid, FindTaskInfo> _infos = new();
     private readonly IndexCollection.IndexCollection _indexCollection = new();
 
-    public void Init()
+    public void Init(ConcurrentStack<Guid> changed)
     {
         if (FileMan.I.InitProcess != FileMan.FullInitProcess)
             throw new ApplicationException("file manager not inited");
         FileMan.I.ChangeEvent += OnFileChanged;
+        OnFileChanged(Guid.Empty, FileCollection.EChangeType.Modify, changed);
     }
 
     private void UpdateInfo()
