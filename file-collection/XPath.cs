@@ -52,7 +52,7 @@ public readonly struct XPath : IReadOnlyList<string>, IComparable<XPath>
         {
             Path = string.Empty;
             PathChain = Array.Empty<string>();
-            throw new TypeInitializationException(GetType().ToString(), e);
+            throw new XFileTypeInitializationException(XFileErr.CreatePath, GetType(), e);
         }
     }
 
@@ -74,7 +74,7 @@ public readonly struct XPath : IReadOnlyList<string>, IComparable<XPath>
         {
             Path = string.Empty;
             PathChain = Array.Empty<string>();
-            throw new TypeInitializationException(GetType().ToString(), e);
+            throw new XFileTypeInitializationException(XFileErr.CreatePath, GetType(), e);
         }
     }
 
@@ -92,7 +92,6 @@ public readonly struct XPath : IReadOnlyList<string>, IComparable<XPath>
     }
 
     public static implicit operator XPath(string self) => new(self);
-
     public static bool operator ==(XPath left, XPath right) => left.Path == right.Path;
     public static bool operator !=(XPath left, XPath right) => left.Path != right.Path;
 
@@ -111,13 +110,29 @@ public readonly struct XPath : IReadOnlyList<string>, IComparable<XPath>
         return true;
     }
 
+    public int Sub(in XPath path)
+    {
+        if (path.Count == 0) return -1;
+        if (this == path) return 0;
+        if (path.Count <= Count) return -1;
+
+        var i = path.Count - 1;
+        for (; i >= 0; i--)
+        {
+            var idx = Count - (path.Count - i);
+            if (idx < 0) return i;
+            if (path.PathChain[i] != PathChain[idx]) return -1;
+        }
+        return i;
+    }
+
     public XPath Parent(int i = 0) => new(this, i);
     private XPath(in XPath child, int parentLv)
     {
-        if (parentLv < 0 || parentLv >= child.Count - 1) throw new IndexOutOfRangeException();
-
         try
         {
+            if (parentLv < 0 || parentLv >= child.Count - 1)
+                throw new XFileIndexOutOfRangeException(XFileErr.CreatePath);
             var list = new string[child.Count - parentLv];
             for (var i = 1; i < child.Count; i++) list[i - 1] = child[i];
             PathChain = list;
@@ -127,7 +142,7 @@ public readonly struct XPath : IReadOnlyList<string>, IComparable<XPath>
         {
             Path = string.Empty;
             PathChain = Array.Empty<string>();
-            throw new TypeInitializationException(GetType().ToString(), e);
+            throw new XFileTypeInitializationException(XFileErr.CreatePath, GetType(), e);
         }
     }
 

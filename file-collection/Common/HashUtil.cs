@@ -50,6 +50,41 @@ internal static class HashUtil
     }
 
     /// <summary>
+    /// 对文件分块取哈希
+    /// </summary>
+    /// <param name="f"></param>
+    /// <returns></returns>
+    public static ulong[] Hash(in FileStream f)
+    {
+        f.Seek(0, SeekOrigin.Begin);
+        var block = new byte[HashFileBlockSize];
+        var offset = 0L;
+        var leftSize = f.Length;
+        var size = (long)Math.Ceiling((double)f.Length / HashFileBlockSize);
+        if (size <= 0) return Array.Empty<ulong>();
+
+        var hashList = new ulong[size];
+        var idx = 0;
+        while (leftSize > 0)
+        {
+            if (leftSize <= HashFileBlockSize)
+            {
+                Array.Clear(block);
+                var _ = f.Read(block, (int)offset, (int)leftSize);
+                leftSize = 0;
+            }
+            else
+            {
+                var _ = f.Read(block, (int)offset, HashFileBlockSize);
+                leftSize -= HashFileBlockSize;
+                offset += HashFileBlockSize;
+            }
+            hashList[idx++] = WyHash.WyHash64.ComputeHash64(block, Seed);
+        }
+        return hashList;
+    }
+
+    /// <summary>
     /// 比较两个哈希数组是否相同
     /// </summary>
     /// <param name="hashA"></param>
